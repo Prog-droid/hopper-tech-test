@@ -1,20 +1,25 @@
-type Response = {
-    ok: boolean;
-    error?: string;
+import { CsvParseError, parseCsvBatch } from './csv-parser';
+import { processBatch } from './enrichment-processor';
+
+type BatchResponse = {
+  ok: boolean;
+  error?: string;
 };
+
 export class CallHandler {
-
-    /**
-     * Handle a batch of call records
-     *
-     * @param payload The raw batch of CDRs in CSV format.
-     */
-    public async handleBatch(payload: string): Promise<Response> {
-
-        // TODO Handler code
-        // ...
-
-
-        return { ok: true };
+  public async handleBatch(payload: string): Promise<BatchResponse> {
+    try {
+      const records = parseCsvBatch(payload);
+      // .catch() prevents unhandled rejection if enrichment fails
+      processBatch(records).catch(err => {
+        console.error('processBatch failed unexpectedly:', err);
+      });
+      return { ok: true };
+    } catch (err) {
+      if (err instanceof CsvParseError) {
+        return { ok: false, error: err.message };
+      }
+      throw err;
     }
+  }
 }

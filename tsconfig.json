@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "sourceMap": false
+    "sourceMap": false,
+    "lib": ["es2020"],
+    "types": ["node"]
   },
   "exclude": ["node_modules"],
   "extends": "@tsconfig/recommended/tsconfig.json"
