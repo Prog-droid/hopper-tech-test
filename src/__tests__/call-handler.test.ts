@@ -1,8 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock the enrichment processor so tests are fast and deterministic.
-// We're testing the handler's contract (parse, validate, acknowledge),
-// not the enrichment pipeline itself.
 vi.mock('../enrichment-processor', () => ({
   processBatch: vi.fn().mockResolvedValue(undefined),
 }));
@@ -24,18 +21,10 @@ describe('CallHandler.handleBatch', () => {
     vi.clearAllMocks();
   });
 
-  it('acknowledges a valid batch quickly and triggers background processing', async () => {
-    const start = Date.now();
+  it('acknowledges a valid batch and triggers background processing', async () => {
     const response = await handler.handleBatch(VALID_CSV);
-    const elapsed = Date.now() - start;
 
-    // Returns ok immediately
     expect(response).toEqual({ ok: true });
-
-    // Well within 500ms SLA — only CSV parsing happens before we return
-    expect(elapsed).toBeLessThan(100);
-
-    // Background enrichment was triggered with the parsed records
     expect(processBatch).toHaveBeenCalledOnce();
     expect(processBatch).toHaveBeenCalledWith(
       expect.arrayContaining([

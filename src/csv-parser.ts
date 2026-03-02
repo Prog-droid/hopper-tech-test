@@ -12,7 +12,6 @@ const EXPECTED_HEADERS = [
   'fromNumber', 'toNumber', 'callType', 'region',
 ] as const satisfies ReadonlyArray<keyof CallRecord>;
 
-
 export function parseCsvBatch(csv: string): CallRecord[] {
   const trimmed = csv.trim();
   if (!trimmed) {
@@ -49,8 +48,7 @@ function parseRow(line: string, rowNumber: number, headers: string[]): CallRecor
     );
   }
 
-  const record: Record<string, string> = {};
-  headers.forEach((h, i) => { record[h] = values[i]; });
+  const record: Record<string, string> = Object.fromEntries(headers.map((h, i) => [h, values[i]]));
 
   if (!record.id) {
     throw new CsvParseError(`Row ${rowNumber}: missing id`);

@@ -22,21 +22,24 @@ export function calculateCost(
   return parseFloat(((fromRate + toRate) * (durationSeconds / 60)).toFixed(4));
 }
 
-const MAX_RETRIES = 2;
+const MAX_ATTEMPTS = 3;
 
 async function lookupWithRetry(
   phoneNumber: string,
   callDate: string
 ): Promise<OperatorInfo | null> {
   let lastError: Error | undefined;
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    if (attempt > 0) {
+      await new Promise(resolve => setTimeout(resolve, attempt * 100));
+    }
     try {
       return await lookupOperator(phoneNumber, callDate);
     } catch (err) {
-      lastError = err as Error;
+      lastError = err instanceof Error ? err : new Error(String(err));
     }
   }
-  console.warn(`lookupOperator failed for ${phoneNumber} after ${MAX_RETRIES + 1} attempts: ${lastError?.message}`);
+  console.warn(`lookupOperator failed for ${phoneNumber} after ${MAX_ATTEMPTS} attempts: ${lastError?.message}`);
   return null;
 }
 
