@@ -1,10 +1,15 @@
+export enum CallType {
+  Voice = 'voice',
+  Video = 'video',
+}
+
 export interface CallRecord {
   id: string;
   callStartTime: string; // ISO 8601 format
   callEndTime: string;   // ISO 8601 format
   fromNumber: string;
   toNumber: string;
-  callType: 'voice' | 'video';
+  callType: CallType;
   region: string;
 }
 
